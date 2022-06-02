@@ -37,6 +37,8 @@ namespace FortuneTeller
                     catch (Exception ex)
                     {
                         fortune = "API call failed!";
+                        Console.WriteLine(fortune + ex.Message);
+                        throw;
                     }
                     Console.WriteLine(fortune);
                     Start(name);
@@ -69,21 +71,17 @@ namespace FortuneTeller
         static async Task<string> GetFortune()
         {
             var baseAddress = "https://api.justyy.workers.dev/api/fortune";
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            using var response = client.GetAsync(baseAddress).Result;
+            if (response.IsSuccessStatusCode)
             {
-                using (var response = client.GetAsync(baseAddress).Result)
-                {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var resultString = await response.Content.ReadAsStringAsync();
-                        return resultString;
-                    }
-                    else
-                    {
-                        Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
-                        return "API Call Failed!";
-                    }
-                }
+                var resultString = await response.Content.ReadAsStringAsync();
+                return resultString;
+            }
+            else
+            {
+                Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+                return "API Call Failed!";
             }
         }
     }
