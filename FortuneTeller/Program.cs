@@ -34,6 +34,7 @@ namespace FortuneTeller
                         Console.WriteLine(joke + ex.Message);
                         throw;
                     }
+                    Console.WriteLine("\nHere's your joke, " + name + ":\n");
                     Console.WriteLine(joke);
                     Start(name);
                 }
@@ -51,6 +52,7 @@ namespace FortuneTeller
                         Console.WriteLine(fortune + ex.Message);
                         throw;
                     }
+                    Console.WriteLine("\nHere's your fortune, " + name +":\n");
                     Console.WriteLine(fortune);
                     Start(name);
                 }
