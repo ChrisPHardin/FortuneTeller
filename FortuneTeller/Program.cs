@@ -6,7 +6,7 @@ namespace FortuneTeller
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("Please enter your name: ");
             string name = Console.ReadLine();
@@ -22,13 +22,24 @@ namespace FortuneTeller
             {
                 if (resNum == 1)
                 {
-                    // Do something here.
-                    Console.WriteLine("You. You're the joke.");
+                    //Tell a joke by calling the GetJoke method
+                    string joke;
+                    try
+                    {
+                        joke = await GetJoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        joke = "API call failed!";
+                        Console.WriteLine(joke + ex.Message);
+                        throw;
+                    }
+                    Console.WriteLine(joke);
                     Start(name);
                 }
                 else if (resNum == 2)
                 {
-                    // Do something here.
+                    //Give a fortune by calling the GetFortune method
                     string fortune;
                     try
                     { 
@@ -68,7 +79,7 @@ namespace FortuneTeller
             }
         }
 
-        static async Task<string> GetFortune()
+        static async Task<String> GetFortune()
         {
             var baseAddress = "https://api.justyy.workers.dev/api/fortune";
             using var client = new HttpClient();
@@ -86,6 +97,26 @@ namespace FortuneTeller
                 Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
                 return "API Call Failed!";
             }
+        }
+
+        static async Task<String> GetJoke()
+        {
+                var baseAddress = "https://v2.jokeapi.dev/joke/Programming?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&format=txt";
+                using var client = new HttpClient();
+                using var response = client.GetAsync(baseAddress).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var resultString = await response.Content.ReadAsStringAsync();
+                    resultString = resultString.Replace("\"", "");
+                    resultString = resultString.Replace("\\n", "");
+                    resultString = resultString.Replace("\\t", "");
+                    return resultString;
+                }
+                else
+                {
+                    Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+                    return "API Call Failed!";
+                }
         }
     }
 }
