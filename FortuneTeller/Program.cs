@@ -15,7 +15,7 @@ namespace FortuneTeller
 
         static async void Start(string name)
         {
-            Console.WriteLine("Okay, " + name + ", what would you like to do?");
+            Console.WriteLine("\nOkay, " + name + ", what would you like to do?");
             Console.WriteLine("1. Tell me a joke.\n2. Tell me my fortune.\n3. Change my name.\n4. Exit");
             String firstResponse = Console.ReadLine();
             if (int.TryParse(firstResponse, out int resNum) == true)
@@ -76,6 +76,9 @@ namespace FortuneTeller
             if (response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
+                resultString = resultString.Replace("\"", "");
+                resultString = resultString.Replace("\\n", "");
+                resultString = resultString.Replace("\\t", "");
                 return resultString;
             }
             else
