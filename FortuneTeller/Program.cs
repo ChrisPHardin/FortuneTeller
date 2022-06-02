@@ -65,6 +65,7 @@ namespace FortuneTeller
                 }
                 else if (resNum == 4)
                 {
+                    Console.WriteLine("\nGoodbye " + name + "!");
                     return;
                 }
                 else
