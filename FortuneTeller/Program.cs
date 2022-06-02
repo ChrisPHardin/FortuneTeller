@@ -109,9 +109,6 @@ namespace FortuneTeller
                 if (response.IsSuccessStatusCode)
                 {
                     var resultString = await response.Content.ReadAsStringAsync();
-                    resultString = resultString.Replace("\"", "");
-                    resultString = resultString.Replace("\\n", "");
-                    resultString = resultString.Replace("\\t", "");
                     return resultString;
                 }
                 else
