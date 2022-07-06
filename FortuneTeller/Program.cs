@@ -24,7 +24,7 @@ namespace FortuneTeller
 
         static async void Start(string name)
         {
-            Console.WriteLine("\nOkay, " + name + ", what would you like me to do?\n");
+            Console.WriteLine("\nOkay, " + name + ", what would you like to do?\n");
             if (Globals.hasSaidOkay == false)
             {
                 Console.WriteLine("1. Tell me a joke.\n2. Tell me my fortune.\n3. Change my name.\n4. Exit");
@@ -95,47 +95,55 @@ namespace FortuneTeller
                 Start(name);
             }
         }
-
+         
         static void NameChange(string name)
         {
-            if (Globals.numChanges < 5)
+            if (Globals.numChanges < 5 && Globals.hasSaidOkay == false)
             {
-                Console.WriteLine("\nWhat would you like your new name to be?");
+                string previousName = name;
+                Console.WriteLine("\nWhat would you like your new name to be? Enter code 0451 to access the secret menu.");
                 name = Console.ReadLine();
-                Globals.namesList.Add(name);
-                Globals.numChanges++;
-                if (Globals.numChanges == 1)
+                if (name == "0451")
                 {
-                    Console.WriteLine("\nThanks, " + name + ", you've changed your name 1 time.");
-                    Start(name);
+                    Globals.hasSaidOkay = true;
+                    NameChange(previousName);
                 }
                 else
                 {
-                    Console.WriteLine("\nThanks, " + name + ", you've changed your name " + Globals.numChanges + " times.");
-                    Start(name);
+                    Globals.numChanges++;
+                    if (Globals.numChanges == 1)
+                    {
+                        Console.WriteLine("\nThanks, " + name + ", you've changed your name 1 time.");
+                        Start(name);
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nThanks, " + name + ", you've changed your name " + Globals.numChanges + " times.");
+                        Start(name);
+                    }
                 }
             }
-            else if (Globals.numChanges >= 5)
+            else if (Globals.numChanges >= 5 || Globals.hasSaidOkay == true)
             {
                 if (Globals.hasSaidOkay == false)
                 {
-                    Console.WriteLine("\n" + name + "...You've changed your name 5 times...\nAre you okay?");
+                    Console.WriteLine("\n" + name + ", you've changed your name 5 times... Are you okay?");
                     string okayResponse = Console.ReadLine();
                     if (okayResponse == "y" || okayResponse == "yes" || okayResponse == "Yes" || okayResponse == "Yes." || okayResponse == "yes.")
                     {
                         Globals.hasSaidOkay = true;
-                        Console.WriteLine("\nOkay, just making sure...\n");
+                        Console.WriteLine("\nOkay, just checking.\n");
                         NameChange(name);
                     }
                     else
                     {
-                        Console.WriteLine("\nWell, I'm just a computer program. Please come back when you're feeling better.");
+                        Console.WriteLine("\nSorry, please come back when you're feeling better.");
                         Start(name);
                     }
                 }
                 else
                 {
-                    Console.WriteLine("\nWould you like to view the names you've entered, or enter a new one?");
+                    Console.WriteLine("\nOkay, " + name + ", would you like to view the names you've entered, or enter a new one?");
                     string nameResponse = Console.ReadLine();
                     if (nameResponse.StartsWith("new") || nameResponse.StartsWith("New") || nameResponse.StartsWith("enter") || nameResponse.StartsWith("Enter"))
                     {
@@ -143,19 +151,33 @@ namespace FortuneTeller
                         name = Console.ReadLine();
                         Globals.namesList.Add(name);
                         Globals.numChanges++;
-                        Console.WriteLine("\nThanks, " + name + ", you've changed your name " + Globals.numChanges + " times.");
+                        if (Globals.numChanges == 1)
+                        {
+                            Console.WriteLine("\nThanks, " + name + ", you've changed your name 1 time.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("\nThanks, " + name + ", you've changed your name " + Globals.numChanges + " times.");
+                        }
                         Start(name);
 
                     }
                     else if (nameResponse.StartsWith("view") || nameResponse.StartsWith("View") || nameResponse.StartsWith("List") || nameResponse.StartsWith("list"))
                     {
-                        Console.WriteLine("\nHere's your list of " + (Globals.numChanges + 1) + " names, " + name + ":");
+                        if (Globals.numChanges == 0)
+                        {
+                            Console.WriteLine("\nHere's your list of " + (Globals.numChanges + 1) + " name, " + name + ":");
+                        }
+                        else
+                        {
+                            Console.WriteLine("\nHere's your list of " + (Globals.numChanges + 1) + " names, " + name + ":");
+                        }
                         Globals.namesList.ForEach(i => Console.WriteLine(i));
                         Start(name);
                     }
                     else
                     {
-                        Console.WriteLine("\nI didn't understand! Please try using simple words or phrases like 'enter a new name' or 'view'.");
+                        Console.WriteLine("\nInvalid input! Please try using simple words or phrases like 'enter a new name' or 'view'.");
                         NameChange(name);
                     }
                 }
@@ -176,7 +198,7 @@ namespace FortuneTeller
             }
             else
             {
-                Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+                Console.WriteLine("Received error response: ", (int)response.StatusCode, response.ReasonPhrase);
                 return "API Call Failed!";
             }
         }
@@ -193,7 +215,7 @@ namespace FortuneTeller
             }
             else
             {
-                Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+                Console.WriteLine("Received error response: ", (int)response.StatusCode, response.ReasonPhrase);
                 return "API Call Failed!";
             }
         }
