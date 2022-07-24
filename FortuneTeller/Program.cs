@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace FortuneTeller
 {
@@ -111,6 +112,7 @@ namespace FortuneTeller
                 else
                 {
                     Globals.numChanges++;
+                    Globals.namesList.Add(name);
                     if (Globals.numChanges == 1)
                     {
                         Console.WriteLine("\nThanks, " + name + ", you've changed your name 1 time.");
@@ -143,9 +145,9 @@ namespace FortuneTeller
                 }
                 else
                 {
-                    Console.WriteLine("\nOkay, " + name + ", would you like to view the names you've entered, or enter a new one?");
+                    Console.WriteLine("\nPlease choose from the below list of options, " + name + ".\n1. Enter a new name\n2. View list of names entered this session\n3. Save names from this session to nameslist.txt\n4. Load list of names from nameslist.txt\n5. Delete nameslist.txt\n6. Go Back");
                     string nameResponse = Console.ReadLine();
-                    if (nameResponse.StartsWith("new") || nameResponse.StartsWith("New") || nameResponse.StartsWith("enter") || nameResponse.StartsWith("Enter"))
+                    if (nameResponse.StartsWith("new") || nameResponse.StartsWith("New") || nameResponse.StartsWith("enter") || nameResponse.StartsWith("Enter") || nameResponse.StartsWith("1"))
                     {
                         Console.WriteLine("\nWhat would you like your new name to be?");
                         name = Console.ReadLine();
@@ -159,10 +161,10 @@ namespace FortuneTeller
                         {
                             Console.WriteLine("\nThanks, " + name + ", you've changed your name " + Globals.numChanges + " times.");
                         }
-                        Start(name);
+                        NameChange(name);
 
                     }
-                    else if (nameResponse.StartsWith("view") || nameResponse.StartsWith("View") || nameResponse.StartsWith("List") || nameResponse.StartsWith("list"))
+                    else if (nameResponse.StartsWith("view") || nameResponse.StartsWith("View") || nameResponse.StartsWith("List") || nameResponse.StartsWith("list") || nameResponse.StartsWith("2"))
                     {
                         if (Globals.numChanges == 0)
                         {
@@ -173,11 +175,92 @@ namespace FortuneTeller
                             Console.WriteLine("\nHere's your list of " + (Globals.numChanges + 1) + " names, " + name + ":");
                         }
                         Globals.namesList.ForEach(i => Console.WriteLine(i));
+                        NameChange(name);
+                    }
+                    else if (nameResponse.StartsWith("save") || nameResponse.StartsWith("Save") || nameResponse.StartsWith("3"))
+                    {
+                        Boolean saveWorked = false;
+                        //var filePath = Path.Combine(System.Reflection.Assembly.GetExecutingAssembly().Location,"nameslist.txt");
+                        try
+                        {
+                            if (!File.Exists("nameslist.txt"))
+                            {
+                                StreamWriter namesFile = File.CreateText("nameslist.txt");
+                                Globals.namesList.ForEach(i => namesFile.WriteLine(i));
+                                namesFile.Close();
+                                saveWorked = true;
+                            }
+                            else
+                            {
+                                StreamWriter namesFile = File.AppendText("nameslist.txt");
+                                Globals.namesList.ForEach(i => namesFile.WriteLine(i));
+                                namesFile.Close();
+                                saveWorked = true;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Exception: " + e.Message);
+                        }
+                        finally
+                        {
+                            if (saveWorked){Console.WriteLine("Saved to nameslist.txt!");}
+                        }
+                        NameChange(name);
+                    }
+                    else if (nameResponse.StartsWith("load") || nameResponse.StartsWith("Load") || nameResponse.StartsWith("4"))
+                    {
+                        if (!File.Exists("nameslist.txt"))
+                        {
+                            Console.WriteLine("File 'nameslist.txt' not found! Try saving first.\n");
+                            NameChange(name);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Listing names from file nameslist.txt:");
+                            try
+                            {
+                                using (var namesFile = new StreamReader("nameslist.txt"))
+                                {
+                                    Console.WriteLine(namesFile.ReadToEnd());
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Exception: " + e.Message);
+                            }
+                            NameChange(name);
+                        }
+                    }
+                    else if (nameResponse.StartsWith("Delete") || nameResponse.StartsWith("delete") || nameResponse.StartsWith("5"))
+                    {
+                        if (!File.Exists("nameslist.txt"))
+                        {
+                            Console.WriteLine("File 'nameslist.txt' not found! Try saving first.\n");
+                            NameChange(name);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Are you sure?");
+                            nameResponse = Console.ReadLine();
+                            if (nameResponse.StartsWith("y") || nameResponse.StartsWith("Y") || nameResponse.StartsWith("1"))
+                            {
+                                File.Delete("nameslist.txt");
+                                NameChange(name);
+                            }
+                            else
+                            {
+                                NameChange(name);
+                            }
+                        }
+                    }
+                    else if (nameResponse.StartsWith("back") || nameResponse.StartsWith("Back") || nameResponse.StartsWith("6"))
+                    {
                         Start(name);
                     }
                     else
                     {
-                        Console.WriteLine("\nInvalid input! Please try using simple words or phrases like 'enter a new name' or 'view'.");
+                        Console.WriteLine("\nInvalid input! Please enter 1, 2, 3, or 4. You can also enter 'new','list','save', 'load', 'delete', or 'back'.");
                         NameChange(name);
                     }
                 }
