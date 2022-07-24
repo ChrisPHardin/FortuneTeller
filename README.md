@@ -6,10 +6,5 @@ This application will first ask your name, then allow you to pick from a range o
 Current Project Requirement Features Included:
 -Master Loop
 -Read from External API and display that data in the app
+-Saving/loading from file
 
-Planned Features:
--Sound/Music player (Read data from an external file req)
--Still thinking what else
-
-Special Instructions:
--May require a Windows machine to play sound, but will use try/catch as a workaround for non-Windows machines.
