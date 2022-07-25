@@ -23,7 +23,7 @@ namespace FortuneTeller
             Start(name);
         }
 
-        static async void Start(string name)
+        static void Start(string name)
         {
             Console.WriteLine("\nOkay, " + name + ", what would you like to do?\n");
             if (Globals.hasSaidOkay == false)
@@ -39,39 +39,11 @@ namespace FortuneTeller
             {
                 if (resNum == 1)
                 {
-                    //Tell a joke by calling the GetJoke method
-                    string joke;
-                    try
-                    {
-                        joke = await GetJoke();
-                    }
-                    catch (Exception ex)
-                    {
-                        joke = "API call failed!";
-                        Console.WriteLine(joke + ex.Message);
-                        throw;
-                    }
-                    Console.WriteLine("\nHere's your joke, " + name + ":\n");
-                    Console.WriteLine(joke);
-                    Start(name);
+                    SaveLoadMenu(name, "joke");
                 }
                 else if (resNum == 2)
                 {
-                    //Give a fortune by calling the GetFortune method
-                    string fortune;
-                    try
-                    {
-                        fortune = await GetFortune();
-                    }
-                    catch (Exception ex)
-                    {
-                        fortune = "API call failed!";
-                        Console.WriteLine(fortune + ex.Message);
-                        throw;
-                    }
-                    Console.WriteLine("\nHere's your fortune, " + name + ":\n");
-                    Console.WriteLine(fortune);
-                    Start(name);
+                    SaveLoadMenu(name, "fortune");
                 }
                 else if (resNum == 3)
                 {
@@ -96,7 +68,164 @@ namespace FortuneTeller
                 Start(name);
             }
         }
-         
+
+        static void SaveToFile(string fileName, string textToWrite)
+        {
+            if (!File.Exists(fileName))
+            {
+                StreamWriter file = File.CreateText(fileName);
+                file.WriteLine(DateTime.Now.ToString() + ":");
+                file.WriteLine(textToWrite);
+                file.WriteLine("\n");
+                file.Close();
+            }
+            else
+            {
+                StreamWriter file = File.AppendText(fileName);
+                file.WriteLine(DateTime.Now.ToString() + ":");
+                file.WriteLine(textToWrite);
+                file.WriteLine("\n");
+                file.Close();
+            }
+        }
+
+        static void LoadFromFile(string fileName)
+        {
+            if (!File.Exists(fileName))
+            {
+                Console.WriteLine("File " + fileName + " not found! Try saving first.\n");
+            }
+            else
+            {
+                Console.WriteLine("Listing contents of " + fileName + ":\n");
+                try
+                {
+                    using (var file = new StreamReader(fileName))
+                    {
+                        Console.WriteLine(file.ReadToEnd());
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Exception: " + e.Message);
+                }
+            }
+        }
+
+        static void DeleteFile(string fileName)
+        {
+            if (!File.Exists(fileName))
+            {
+                Console.WriteLine("File " + fileName + " not found! Try saving first.");
+            }
+            else
+            {
+                Console.WriteLine("Are you sure you would like to delete " + fileName + "?");
+                string response = Console.ReadLine();
+                if (response.StartsWith("y") || response.StartsWith("Y"))
+                {
+                    File.Delete(fileName);
+                }
+                else
+                {
+                    Console.WriteLine("Delete cancelled!");
+                }
+            }
+        }
+
+        static async void SaveLoadMenu(string name, string type)
+        {
+            Console.WriteLine("\nPlease choose from the below list of options, " + name + ":\n1. Generate a new " + type +"\n2. Display saved " + type + "s\n3. Delete saved " + type + "s\n4. Go back.");
+            string apiResponse;
+            string firstResponse = Console.ReadLine();
+            if (int.TryParse(firstResponse, out int resNum) == true)
+            {
+                if (resNum == 1)
+                {
+                    if (type == "fortune")
+                    {
+                        try
+                        {
+                            apiResponse = await GetFortune();
+                        }
+                        catch (Exception ex)
+                        {
+                            apiResponse = "API call failed!";
+                            Console.WriteLine(apiResponse + ex.Message);
+                            throw;
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            apiResponse = await GetJoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            apiResponse = "API call failed!";
+                            Console.WriteLine(apiResponse + ex.Message);
+                            throw;
+                        }
+                    }
+                    Console.WriteLine("\nHere's your " + type +", " + name + ":\n");
+                    Console.WriteLine(apiResponse);
+                    Console.WriteLine("\nWould you like to save your " + type +"?");
+                    firstResponse = Console.ReadLine();
+                    if (firstResponse.StartsWith("y") || firstResponse.StartsWith("Y"))
+                    {
+                        if (type == "fortune")
+                        {
+                            SaveToFile("fortunelist.txt", apiResponse);
+                        }
+                        else
+                        {
+                            SaveToFile("jokelist.txt", apiResponse);
+                        }
+                        SaveLoadMenu(name, type);
+                    }
+                    else
+                    {
+                        SaveLoadMenu(name, type);
+                    }
+                }
+                else if (resNum == 2)
+                {
+                    if (type == "fortune")
+                    {
+                        LoadFromFile("fortunelist.txt");
+                    }
+                    else
+                    {
+                        LoadFromFile("jokelist.txt");
+                    }
+                    SaveLoadMenu(name, type);
+                }
+                else if (resNum == 3)
+                {
+                    if (type == "fortune")
+                    {
+                        DeleteFile("fortunelist.txt");
+                    }
+                    else
+                    {
+                        DeleteFile("jokelist.txt");
+                    }
+                    SaveLoadMenu(name, type);
+                }
+                else
+                {
+                    Start(name);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid response! Try again.");
+                SaveLoadMenu(name, type);
+            }
+        }
+
+
         static void NameChange(string name)
         {
             if (Globals.numChanges < 5 && Globals.hasSaidOkay == false)
