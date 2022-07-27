@@ -7,26 +7,27 @@ using System.IO;
 namespace FortuneTeller
 {
 
-    static class Globals
+    public class Globals
     {
-        public static List<string> namesList = new();
-        public static int numChanges = 0;
-        public static bool hasSaidOkay = false;
+        public List<string> namesList = new();
+        public int numChanges = 0;
+        public bool hasSaidOkay = false;
     }
-    static class Program
+    public class Program
     {
         static void Main()
         {
+            Globals globalVar = new Globals();
             Console.WriteLine("Please enter your name: ");
             string name = Console.ReadLine();
-            Globals.namesList.Add(name);
-            Start(name);
+            globalVar.namesList.Add(name);
+            Start(name, globalVar);
         }
 
-        static void Start(string name)
+        static void Start(string name, Globals globalVar)
         {
             Console.WriteLine("\nOkay, " + name + ", what would you like to do?\n");
-            if (Globals.hasSaidOkay == false)
+            if (globalVar.hasSaidOkay == false)
             {
                 Console.WriteLine("1. Tell me a joke.\n2. Tell me my fortune.\n3. Change my name.\n4. Exit");
             }
@@ -39,15 +40,15 @@ namespace FortuneTeller
             {
                 if (resNum == 1)
                 {
-                    SaveLoadMenu(name, "joke");
+                    SaveLoadMenu(name, "joke", globalVar);
                 }
                 else if (resNum == 2)
                 {
-                    SaveLoadMenu(name, "fortune");
+                    SaveLoadMenu(name, "fortune", globalVar);
                 }
                 else if (resNum == 3)
                 {
-                    NameChange(name);
+                    NameChange(name, globalVar);
 
                 }
                 else if (resNum == 4)
@@ -58,14 +59,14 @@ namespace FortuneTeller
                 else
                 {
                     Console.WriteLine("Invalid response! Try again.");
-                    Start(name);
+                    Start(name, globalVar);
                 }
 
             }
             else
             {
                 Console.WriteLine("Invalid response! Try again.");
-                Start(name);
+                Start(name, globalVar);
             }
         }
 
@@ -133,7 +134,7 @@ namespace FortuneTeller
             }
         }
 
-        static async void SaveLoadMenu(string name, string type)
+        static async void SaveLoadMenu(string name, string type, Globals globalVar)
         {
             Console.WriteLine("\nPlease choose from the below list of options, " + name + ":\n1. Generate a new " + type +"\n2. Display saved " + type + "s\n3. Delete saved " + type + "s\n4. Go back.");
             string apiResponse;
@@ -182,11 +183,11 @@ namespace FortuneTeller
                         {
                             SaveToFile("jokelist.txt", apiResponse);
                         }
-                        SaveLoadMenu(name, type);
+                        SaveLoadMenu(name, type, globalVar);
                     }
                     else
                     {
-                        SaveLoadMenu(name, type);
+                        SaveLoadMenu(name, type, globalVar);
                     }
                 }
                 else if (resNum == 2)
@@ -199,7 +200,7 @@ namespace FortuneTeller
                     {
                         LoadFromFile("jokelist.txt");
                     }
-                    SaveLoadMenu(name, type);
+                    SaveLoadMenu(name, type, globalVar);
                 }
                 else if (resNum == 3)
                 {
@@ -211,65 +212,65 @@ namespace FortuneTeller
                     {
                         DeleteFile("jokelist.txt");
                     }
-                    SaveLoadMenu(name, type);
+                    SaveLoadMenu(name, type, globalVar);
                 }
                 else
                 {
-                    Start(name);
+                    Start(name, globalVar);
                 }
             }
             else
             {
                 Console.WriteLine("Invalid response! Try again.");
-                SaveLoadMenu(name, type);
+                SaveLoadMenu(name, type, globalVar);
             }
         }
 
 
-        static void NameChange(string name)
+        static void NameChange(string name, Globals globalVar)
         {
-            if (Globals.numChanges < 5 && Globals.hasSaidOkay == false)
+            if (globalVar.numChanges < 5 && globalVar.hasSaidOkay == false)
             {
                 string previousName = name;
                 Console.WriteLine("\nWhat would you like your new name to be? Enter code 0451 to access the secret menu.");
                 name = Console.ReadLine();
                 if (name == "0451")
                 {
-                    Globals.hasSaidOkay = true;
-                    NameChange(previousName);
+                    globalVar.hasSaidOkay = true;
+                    NameChange(previousName, globalVar);
                 }
                 else
                 {
-                    Globals.numChanges++;
-                    Globals.namesList.Add(name);
-                    if (Globals.numChanges == 1)
+                    globalVar.numChanges++;
+                    globalVar.namesList.Add(name);
+                    if (globalVar.numChanges == 1)
                     {
                         Console.WriteLine("\nThanks, " + name + ", you've changed your name 1 time.");
-                        Start(name);
+                        Start(name, globalVar);
                     }
                     else
                     {
-                        Console.WriteLine("\nThanks, " + name + ", you've changed your name " + Globals.numChanges + " times.");
-                        Start(name);
+                        Console.WriteLine("\nThanks, " + name + ", you've changed your name " + globalVar.numChanges + " times.");
+                        Start(name, globalVar);
                     }
                 }
             }
-            else if (Globals.numChanges >= 5 || Globals.hasSaidOkay == true)
+            else if (globalVar.numChanges >= 5 || globalVar.hasSaidOkay == true)
             {
-                if (Globals.hasSaidOkay == false)
+                if (globalVar.hasSaidOkay == false)
                 {
                     Console.WriteLine("\n" + name + ", you've changed your name 5 times... Are you okay?");
                     string okayResponse = Console.ReadLine();
                     if (okayResponse == "y" || okayResponse == "yes" || okayResponse == "Yes" || okayResponse == "Yes." || okayResponse == "yes.")
                     {
-                        Globals.hasSaidOkay = true;
+                        globalVar.hasSaidOkay = true;
                         Console.WriteLine("\nOkay, just checking.\n");
-                        NameChange(name);
+                        NameChange(name, globalVar);
                     }
                     else
                     {
                         Console.WriteLine("\nSorry, please come back when you're feeling better.");
-                        Start(name);
+                        Start(name, globalVar);
                     }
                 }
                 else
@@ -280,31 +281,31 @@ namespace FortuneTeller
                     {
                         Console.WriteLine("\nWhat would you like your new name to be?");
                         name = Console.ReadLine();
-                        Globals.namesList.Add(name);
-                        Globals.numChanges++;
-                        if (Globals.numChanges == 1)
+                        globalVar.namesList.Add(name);
+                        globalVar.numChanges++;
+                        if (globalVar.numChanges == 1)
                         {
                             Console.WriteLine("\nThanks, " + name + ", you've changed your name 1 time.");
                         }
                         else
                         {
-                            Console.WriteLine("\nThanks, " + name + ", you've changed your name " + Globals.numChanges + " times.");
+                            Console.WriteLine("\nThanks, " + name + ", you've changed your name " + globalVar.numChanges + " times.");
                         }
-                        NameChange(name);
+                        NameChange(name, globalVar);
 
                     }
                     else if (nameResponse.StartsWith("view") || nameResponse.StartsWith("View") || nameResponse.StartsWith("List") || nameResponse.StartsWith("list") || nameResponse.StartsWith("2"))
                     {
-                        if (Globals.numChanges == 0)
+                        if (globalVar.numChanges == 0)
                         {
-                            Console.WriteLine("\nHere's your list of " + (Globals.numChanges + 1) + " name, " + name + ":");
+                            Console.WriteLine("\nHere's your list of " + (globalVar.numChanges + 1) + " name, " + name + ":");
                         }
                         else
                         {
-                            Console.WriteLine("\nHere's your list of " + (Globals.numChanges + 1) + " names, " + name + ":");
+                            Console.WriteLine("\nHere's your list of " + (globalVar.numChanges + 1) + " names, " + name + ":");
                         }
-                        Globals.namesList.ForEach(i => Console.WriteLine(i));
-                        NameChange(name);
+                        globalVar.namesList.ForEach(i => Console.WriteLine(i));
+                        NameChange(name, globalVar);
                     }
                     else if (nameResponse.StartsWith("save") || nameResponse.StartsWith("Save") || nameResponse.StartsWith("3"))
                     {
@@ -315,14 +316,14 @@ namespace FortuneTeller
                             if (!File.Exists("nameslist.txt"))
                             {
                                 StreamWriter namesFile = File.CreateText("nameslist.txt");
-                                Globals.namesList.ForEach(i => namesFile.WriteLine(i));
+                                globalVar.namesList.ForEach(i => namesFile.WriteLine(i));
                                 namesFile.Close();
                                 saveWorked = true;
                             }
                             else
                             {
                                 StreamWriter namesFile = File.AppendText("nameslist.txt");
-                                Globals.namesList.ForEach(i => namesFile.WriteLine(i));
+                                globalVar.namesList.ForEach(i => namesFile.WriteLine(i));
                                 namesFile.Close();
                                 saveWorked = true;
                             }
@@ -335,14 +336,14 @@ namespace FortuneTeller
                         {
                             if (saveWorked){Console.WriteLine("Saved to nameslist.txt!");}
                         }
-                        NameChange(name);
+                        NameChange(name, globalVar);
                     }
                     else if (nameResponse.StartsWith("load") || nameResponse.StartsWith("Load") || nameResponse.StartsWith("4"))
                     {
                         if (!File.Exists("nameslist.txt"))
                         {
                             Console.WriteLine("File 'nameslist.txt' not found! Try saving first.\n");
-                            NameChange(name);
+                            NameChange(name, globalVar);
                         }
                         else
                         {
@@ -358,7 +359,7 @@ namespace FortuneTeller
                             {
                                 Console.WriteLine("Exception: " + e.Message);
                             }
-                            NameChange(name);
+                            NameChange(name, globalVar);
                         }
                     }
                     else if (nameResponse.StartsWith("Delete") || nameResponse.StartsWith("delete") || nameResponse.StartsWith("5"))
@@ -366,7 +367,7 @@ namespace FortuneTeller
                         if (!File.Exists("nameslist.txt"))
                         {
                             Console.WriteLine("File 'nameslist.txt' not found! Try saving first.\n");
-                            NameChange(name);
+                            NameChange(name, globalVar);
                         }
                         else
                         {
@@ -375,22 +376,22 @@ namespace FortuneTeller
                             if (nameResponse.StartsWith("y") || nameResponse.StartsWith("Y") || nameResponse.StartsWith("1"))
                             {
                                 File.Delete("nameslist.txt");
-                                NameChange(name);
+                                NameChange(name, globalVar);
                             }
                             else
                             {
-                                NameChange(name);
+                                NameChange(name, globalVar);
                             }
                         }
                     }
                     else if (nameResponse.StartsWith("back") || nameResponse.StartsWith("Back") || nameResponse.StartsWith("6"))
                     {
-                        Start(name);
+                        Start(name, globalVar);
                     }
                     else
                     {
                         Console.WriteLine("\nInvalid input! Please enter 1, 2, 3, or 4. You can also enter 'new','list','save', 'load', 'delete', or 'back'.");
-                        NameChange(name);
+                        NameChange(name, globalVar);
                     }
                 }
             }
